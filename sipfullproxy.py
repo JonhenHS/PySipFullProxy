@@ -17,10 +17,16 @@ import socketserver
 import re
 import time
 import logging
+from json import load as jload
 
 
 class UDPHandler(socketserver.BaseRequestHandler):
     
+    with open("codes.json") as f:
+        codes = jload(f)
+
+    lang = "sk"
+
     rx_register = re.compile("^REGISTER")
     rx_invite = re.compile("^INVITE")
     rx_ack = re.compile("^ACK")
@@ -232,7 +238,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
         # if rx_invalid.search(contact) or rx_invalid2.search(contact):
         #     if fromm in registrar:
         #         del registrar[fromm]
-        #     self.sendResponse("488 Not Acceptable Here")
+        #     self.sendResponse(self.codes[self.lang]["488"])
         #     return
         if len(contact_expires) > 0:
             expires = int(contact_expires)
@@ -242,7 +248,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
         if expires == 0:
             if fromm in self.registrar:
                 del self.registrar[fromm]
-                self.sendResponse("200 0K")
+                self.sendResponse(self.codes[self.lang]["200"])
                 return
         else:
             now = int(time.time())
@@ -253,7 +259,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
         logging.debug("Expires= %d" % expires)
         self.registrar[fromm] = [contact, self.socket, self.client_address, validity]
         self.debugRegister()
-        self.sendResponse("200 0K")
+        self.sendResponse(self.codes[self.lang]["200"])
 
     def processInvite(self):
         logging.debug("-----------------")
@@ -261,7 +267,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
         logging.debug("-----------------")
         origin = self.getOrigin()
         if len(origin) == 0 or origin not in self.registrar:
-            self.sendResponse("400 Bad Request")
+            self.sendResponse(self.codes[self.lang]["400"])
             return
         destination = self.getDestination()
         if len(destination) > 0:
@@ -279,9 +285,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 logging.info("<<< %s" % data[0])
                 logging.debug("---\n<< server send [%d]:\n%s\n---" % (len(text), text))
             else:
-                self.sendResponse("480 Temporarily Unavailable")
+                self.sendResponse(self.codes[self.lang]["480"])
         else:
-            self.sendResponse("500 Server Internal Error")
+            self.sendResponse(self.codes[self.lang]["500"])
 
     def processAck(self):
         logging.debug("--------------")
@@ -309,7 +315,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
         logging.debug("----------------------")
         origin = self.getOrigin()
         if len(origin) == 0 or origin not in self.registrar:
-            self.sendResponse("400 Bad Request")
+            self.sendResponse(self.codes[self.lang]["400"])
             return
         destination = self.getDestination()
         if len(destination) > 0:
@@ -327,9 +333,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 logging.info("<<< %s" % data[0])
                 logging.debug("---\n<< server send [%d]:\n%s\n---" % (len(text), text))
             else:
-                self.sendResponse("406 Not Acceptable")
+                self.sendResponse(self.codes[self.lang]["406"])
         else:
-            self.sendResponse("500 Server Internal Error")
+            self.sendResponse(self.codes[self.lang]["500"])
 
     def processCode(self):
         origin = self.getOrigin()
@@ -372,11 +378,11 @@ class UDPHandler(socketserver.BaseRequestHandler):
             elif self.rx_update.search(request_uri):
                 self.processNonInvite()
             elif self.rx_subscribe.search(request_uri):
-                self.sendResponse("200 0K")
+                self.sendResponse(self.codes[self.lang]["200"])
             elif self.rx_publish.search(request_uri):
-                self.sendResponse("200 0K")
+                self.sendResponse(self.codes[self.lang]["200"])
             elif self.rx_notify.search(request_uri):
-                self.sendResponse("200 0K")
+                self.sendResponse(self.codes[self.lang]["200"])
             elif self.rx_code.search(request_uri):
                 self.processCode()
             else:
@@ -385,6 +391,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         # socket.setdefaulttimeout(120)
+        global data
         try:
             data = self.request[0].decode("utf-8")
         except UnicodeDecodeError:
