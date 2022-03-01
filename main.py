@@ -7,14 +7,14 @@ import logging
 
 
 def main():
-    ip = "192.168.1.106"
     port = 5060
 
     logging.basicConfig(filename="sip.log", encoding="utf-8", level=logging.INFO,
                         format='%(asctime)s:%(levelname)s:%(message)s', datefmt='%H:%M:%S')
     logging.info("STARTED - " + time.strftime("%a, %d %b %Y %H:%M:%S ", time.localtime()))
     hostname = socket.gethostname()
-    # ip = socket.gethostbyname(hostname)
+    ip = socket.gethostbyname(hostname)
+    print(f"IP: {ip}")
     logging.info(hostname)
     logging.info(f"{ip}:{port}")
 
