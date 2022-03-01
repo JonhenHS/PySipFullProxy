@@ -235,11 +235,6 @@ class UDPHandler(socketserver.BaseRequestHandler):
             if md:
                 header_expires = md.group(1)
 
-        # if rx_invalid.search(contact) or rx_invalid2.search(contact):
-        #     if fromm in registrar:
-        #         del registrar[fromm]
-        #     self.sendResponse(self.codes[self.lang]["488"])
-        #     return
         if len(contact_expires) > 0:
             expires = int(contact_expires)
         elif len(header_expires) > 0:
