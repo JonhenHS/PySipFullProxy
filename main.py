@@ -1,3 +1,10 @@
+import os
+import sys
+
+script_dir = os.path.dirname(__file__)
+mymodule_dir = os.path.join(script_dir)
+sys.path.append(mymodule_dir)
+
 from sipfullproxy import UDPHandler
 from socketserver import UDPServer
 import socket
@@ -7,13 +14,13 @@ import logging
 
 
 def main():
+    ip = "0.0.0.0"
     port = 5060
 
-    logging.basicConfig(filename="sip.log", encoding="utf-8", level=logging.INFO,
-                        format='%(asctime)s:%(levelname)s:%(message)s', datefmt='%H:%M:%S')
+    logging.basicConfig(filename="sip.log", encoding="utf-8", level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s', datefmt='%H:%M:%S')
     logging.info("STARTED - " + time.strftime("%a, %d %b %Y %H:%M:%S ", time.localtime()))
     hostname = socket.gethostname()
-    ip = socket.gethostbyname(hostname)
+    #ip = socket.gethostbyname(hostname)
     print(f"IP: {ip}")
     logging.info(hostname)
     logging.info(f"{ip}:{port}")
@@ -35,7 +42,7 @@ def main():
         server_thread.join()
 
     logging.info("ENDED - " + time.strftime("%a, %d %b %Y %H:%M:%S ", time.localtime()))
-    exit(0)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
